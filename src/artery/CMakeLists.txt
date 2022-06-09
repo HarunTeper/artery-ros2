@@ -143,6 +143,15 @@ if(TARGET lte)
     target_link_libraries(artery INTERFACE lte)
 endif()
 
+set_property(TARGET core APPEND PROPERTY SOURCES
+    ros2/Ros2Scheduler.cc
+    ros2/Ros2Service.cc
+    ros2/RobotMiddleware.cc
+    ros2/RobotPositionProvider.cc
+    ros2/RobotInetMobility.cc
+)
+target_link_libraries(core PUBLIC ros2)
+
 macro(add_artery_feature name)
     add_library(${name} SHARED ${ARGN})
     add_library(Artery::${name} ALIAS ${name})

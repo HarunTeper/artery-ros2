@@ -13,7 +13,7 @@ if(POLICY CMP0079)
 endif()
 
 set(CMAKE_MODULE_PATH ${PROJECT_SOURCE_DIR}/cmake)
-set(CMAKE_CXX_STANDARD 11)
+set(CMAKE_CXX_STANDARD 14)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 enable_testing()
 
@@ -29,6 +29,8 @@ if (Boost_VERSION_STRING VERSION_GREATER_EQUAL "1.75")
     # Boost.Geometry requires C++14 starting with Boost 1.75
     set(CMAKE_CXX_STANDARD 14)
 endif()
+
+find_package(rclcpp)
 
 # running simulations with opp_run requires shared libraries
 set(BUILD_SHARED_LIBS ON CACHE INTERNAL "Cached for propagation to sub-projects with older CMake versions")
@@ -101,6 +103,8 @@ endif()
 add_subdirectory(src/traci)
 
 add_subdirectory(src/artery)
+
+add_subdirectory(src/ros2)
 
 # scenarios directory is part of repository but omitted for Docker build context
 if(EXISTS ${PROJECT_SOURCE_DIR}/scenarios)
