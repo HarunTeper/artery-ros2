@@ -21,30 +21,31 @@ void BasicRobotLifecycleController::initialize()
     if (!m_creation_policy) {
         throw omnetpp::cRuntimeError("missing RobotCreationPolicy");
     }
-    robotNameSub = rosNode.getRosNode()->create_subscription<std_msgs::msg::String>("/artery_model_list",10,std::bind(&BasicRobotLifecycleController::model_callback,this,std::placeholders::_1));
+    robotNameSub = rosNode.getRosNode()->create_subscription<ros_its_msgs::msg::StringArray>("/artery_model_list",1,std::bind(&BasicRobotLifecycleController::model_callback,this,std::placeholders::_1));
 }
 
-void BasicRobotLifecycleController::model_callback(const std_msgs::msg::String::SharedPtr msg)
+void BasicRobotLifecycleController::model_callback(const ros_its_msgs::msg::StringArray::SharedPtr msg)
 {
-    RobotSink* sink = getSink(msg->data);
-    if(!sink)
+    for(auto name:msg->strings)
     {
-        RobotObject robot;
-        robot.setId(msg->data);
-        robot.setType("PASSENGER_CAR");
-        robot.setPosition({ 0, 0, 0 });
-        robot.setHeading(0);
-        robot.setSpeed(0);
-        robot.setDriveDirection(0);
-        robot.setVehicleLength(0);
-        robot.setVehicleWidth(0);
-        robot.setAcceleration(0);
-        robot.setCurvature(0);
-        robot.setYawRate(0);
-        RobotSink* sink = getSink(robot.getId());
-        if (!sink) 
-        {
-            createSink(robot);
+        RobotSink* sink = getSink(name);
+        if(!sink){
+            RobotObject robot;
+            robot.setId(name);
+            robot.setType("PASSENGER_CAR");
+            robot.setPosition({ 0, 0, 0 });
+            robot.setHeading(0);
+            robot.setSpeed(0);
+            robot.setDriveDirection(0);
+            robot.setVehicleLength(0);
+            robot.setVehicleWidth(0);
+            robot.setAcceleration(0);
+            robot.setCurvature(0);
+            robot.setYawRate(0);
+            RobotSink* sink = getSink(robot.getId());
+            if (!sink){
+                createSink(robot);
+            }
         }
     }
 }

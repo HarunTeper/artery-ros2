@@ -29,7 +29,7 @@ using namespace omnetpp;
 
 Ros2Scheduler::Ros2Scheduler() : rosNode(Ros2Node::getInstance())
 {
-    clockSub = rosNode.getRosNode()->create_subscription<rosgraph_msgs::msg::Clock>("/clock",10,std::bind(&Ros2Scheduler::clock_callback,this,std::placeholders::_1));
+    clockSub = rosNode.getRosNode()->create_subscription<rosgraph_msgs::msg::Clock>("/clock",1,std::bind(&Ros2Scheduler::clock_callback,this,std::placeholders::_1));
 }
 
 cEvent* Ros2Scheduler::guessNextEvent()
@@ -55,6 +55,10 @@ cEvent* Ros2Scheduler::takeNextEvent()
                 if (event->getArrivalTime() <= gazebo_clock) {
                     return sim->getFES()->removeFirst();
                 }
+                if(clockSub->get_publisher_count() == 0){
+                    throw cTerminationException("Robot simulation not running or stopped.");
+                }
+
             }
         }
         else 
