@@ -72,7 +72,7 @@ void Ros2Service::initialize()
     auto& robot = getFacilities().getConst<ros2::RobotObject>();
     std::string mRobotId = robot.getId();
 
-	publisher = rosNode.getRosNode()->create_publisher<etsi_its_msgs::msg::CAM>(mRobotId+"/camRX", 10);
+	publisher = rosNode.getRosNode()->create_publisher<etsi_its_msgs::msg::CAM>(mRobotId+"/cam_in", 10);
 }
 
 void Ros2Service::finish()

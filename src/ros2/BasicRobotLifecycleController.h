@@ -14,7 +14,7 @@
 
 #include <rclcpp/rclcpp.hpp>
 #include <std_msgs/msg/string.hpp>
-#include <ros_its_msgs/msg/string_array.hpp>
+#include <auna_msgs/msg/string_array.hpp>
 
 #include <ros2/Ros2Node.h>
 
@@ -45,8 +45,8 @@ private:
     RobotCreationPolicy* m_creation_policy = nullptr;
 
     Ros2Node rosNode;
-    rclcpp::Subscription<ros_its_msgs::msg::StringArray>::SharedPtr robotNameSub;
-    void model_callback(const ros_its_msgs::msg::StringArray::SharedPtr msg);
+    rclcpp::Subscription<auna_msgs::msg::StringArray>::SharedPtr robotNameSub;
+    void model_callback(const auna_msgs::msg::StringArray::SharedPtr msg);
 };
 
 } // namespace ros2
