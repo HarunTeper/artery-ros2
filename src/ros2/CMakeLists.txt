@@ -21,7 +21,7 @@ macro(find_ros)
     endforeach()
 endmacro()
 
-find_ros(rclcpp gazebo_msgs auna_its_msgs auna_msgs etsi_its_msgs)
+find_ros(rclcpp gazebo_msgs ros_its_msgs etsi_its_msgs)
 target_include_directories(ros2 PUBLIC ${ROS_INCLUDE_DIRS})
 target_link_libraries(ros2 PUBLIC ${ROS_LIBRARIES})
 

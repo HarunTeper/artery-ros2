@@ -21,10 +21,10 @@ void BasicRobotLifecycleController::initialize()
     if (!m_creation_policy) {
         throw omnetpp::cRuntimeError("missing RobotCreationPolicy");
     }
-    robotNameSub = rosNode.getRosNode()->create_subscription<auna_msgs::msg::StringArray>("/robot_names",1,[this](const auna_msgs::msg::StringArray::SharedPtr msg){model_callback(msg);});
+    robotNameSub = rosNode.getRosNode()->create_subscription<ros_its_msgs::msg::StringArray>("/artery_model_list",1,std::bind(&BasicRobotLifecycleController::model_callback,this,std::placeholders::_1));
 }
 
-void BasicRobotLifecycleController::model_callback(const auna_msgs::msg::StringArray::SharedPtr msg)
+void BasicRobotLifecycleController::model_callback(const ros_its_msgs::msg::StringArray::SharedPtr msg)
 {
     for(auto name:msg->strings)
     {

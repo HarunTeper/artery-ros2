@@ -47,8 +47,8 @@ void RobotInetMobility::initialize(int stage)
         omnetpp::createWatch("speed", mSpeed);
         omnetpp::createWatch("orientation", mOrientation);
         omnetpp::createWatch("ROBOT ID", mLastRobotObject.getId());
-        localizationSub = rosNode.getRosNode()->create_subscription<etsi_its_msgs::msg::CAM>(mLastRobotObject.getId()+"/cam_out",1,std::bind(&RobotInetMobility::localization_callback,this,std::placeholders::_1));
-        simulationSub = rosNode.getRosNode()->create_subscription<auna_its_msgs::msg::CAM>(mLastRobotObject.getId()+"/simulation_pose",1,std::bind(&RobotInetMobility::simulation_callback,this,std::placeholders::_1));
+        localizationSub = rosNode.getRosNode()->create_subscription<etsi_its_msgs::msg::CAM>(mLastRobotObject.getId()+"/camTX",1,std::bind(&RobotInetMobility::localization_callback,this,std::placeholders::_1));
+        simulationSub = rosNode.getRosNode()->create_subscription<ros_its_msgs::msg::CAM>(mLastRobotObject.getId()+"/simulation_pose",1,std::bind(&RobotInetMobility::simulation_callback,this,std::placeholders::_1));
     } else if (stage == inet::INITSTAGE_PHYSICAL_ENVIRONMENT_2) {
         if (mVisualRepresentation) {
             auto target = mVisualRepresentation->getParentModule();
@@ -84,7 +84,7 @@ void RobotInetMobility::localization_callback(const etsi_its_msgs::msg::CAM::Sha
     emit(robotPositionChangedSignal, &robot);
 }
 
-void RobotInetMobility::simulation_callback(const auna_its_msgs::msg::CAM::SharedPtr msg)
+void RobotInetMobility::simulation_callback(const ros_its_msgs::msg::CAM::SharedPtr msg)
 {
     ros2::RobotObject robot;
     robot.setId(mLastRobotObject.getId());

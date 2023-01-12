@@ -9,7 +9,7 @@
 #include <rclcpp/rclcpp.hpp>
 #include <std_msgs/msg/string.hpp>
 #include <etsi_its_msgs/msg/cam.hpp>
-#include <auna_its_msgs/msg/cam.hpp>
+#include <ros_its_msgs/msg/cam.hpp>
 
 #include <ros2/Ros2Node.h>
 
@@ -71,9 +71,9 @@ private:
 
     Ros2Node rosNode;
     rclcpp::Subscription<etsi_its_msgs::msg::CAM>::SharedPtr localizationSub;
-    rclcpp::Subscription<auna_its_msgs::msg::CAM>::SharedPtr simulationSub;
+    rclcpp::Subscription<ros_its_msgs::msg::CAM>::SharedPtr simulationSub;
     void localization_callback(const etsi_its_msgs::msg::CAM::SharedPtr);
-    void simulation_callback(const auna_its_msgs::msg::CAM::SharedPtr);
+    void simulation_callback(const ros_its_msgs::msg::CAM::SharedPtr);
 };
 
 } // namespace artery
