@@ -72,7 +72,7 @@ void Ros2Service::initialize()
     auto& robot = getFacilities().getConst<ros2::RobotObject>();
     std::string mRobotId = robot.getId();
 
-	publisher = rosNode.getRosNode()->create_publisher<etsi_its_msgs::msg::CAM>(mRobotId+"/camRX", 10);
+	publisher = rosNode.getRosNode()->create_publisher<etsi_its_msgs::msg::CAM>(mRobotId+"/cam_in", 10);
 }
 
 void Ros2Service::finish()
@@ -131,42 +131,39 @@ void Ros2Service::receiveSignal(cComponent* source, simsignal_t signal, cObject*
 	int identity = (int)mRobotId.back() - '0';
 
 	if (auto cam = dynamic_cast<CaObject*>(object)) {
+
 		const auto id = cam->asn1()->header.stationID%1000000000;
 
-		//only send message if cam received from preceding vehicle
-		if(identity == id+1)
-		{
-			inet::GeoCoord geoPosition{
-				(double)cam->asn1()->cam.camParameters.basicContainer.referencePosition.latitude/10000000,
-				(double)cam->asn1()->cam.camParameters.basicContainer.referencePosition.longitude/10000000,
-				(double)cam->asn1()->cam.camParameters.basicContainer.referencePosition.altitude.altitudeValue/10000000
-			};
-			inet::Coord rosCoord = mCoordinateSystem->computePlaygroundCoordinate(geoPosition);
+		inet::GeoCoord geoPosition{
+			(double)cam->asn1()->cam.camParameters.basicContainer.referencePosition.latitude/10000000,
+			(double)cam->asn1()->cam.camParameters.basicContainer.referencePosition.longitude/10000000,
+			(double)cam->asn1()->cam.camParameters.basicContainer.referencePosition.altitude.altitudeValue/10000000
+		};
+		inet::Coord rosCoord = mCoordinateSystem->computePlaygroundCoordinate(geoPosition);
 
-			etsi_its_msgs::msg::CAM msg;
+		etsi_its_msgs::msg::CAM msg;
 
-			msg.header.stamp = rosNode.getRosNode()->get_clock()->now();
-			msg.header.frame_id = mRobotId;
-			
-			msg.its_header.message_id = msg.its_header.MESSAGE_ID_CAM;
+		msg.header.stamp = rosNode.getRosNode()->get_clock()->now();
+		msg.header.frame_id = std::to_string(cam->asn1()->header.stationID%1000000000);
+		
+		msg.its_header.message_id = msg.its_header.MESSAGE_ID_CAM;
 
-			msg.station_type.value = msg.station_type.PASSENGER_CAR;
+		msg.station_type.value = msg.station_type.PASSENGER_CAR;
 
-			msg.reference_position.longitude = std::round(rosCoord.x); //0.1m
-			msg.reference_position.latitude = std::round(-rosCoord.y); //0.1m //flip y-axis
-			msg.reference_position.altitude.value = 0; //cam->asn1()->cam.camParameters.basicContainer.referencePosition.altitude.altitudeValue; //0.01m
+		msg.reference_position.longitude = std::round(rosCoord.x); //0.1m
+		msg.reference_position.latitude = std::round(-rosCoord.y); //0.1m //flip y-axis
+		msg.reference_position.altitude.value = 0; //cam->asn1()->cam.camParameters.basicContainer.referencePosition.altitude.altitudeValue; //0.01m
 
-			msg.high_frequency_container.heading.value = cam->asn1()->cam.camParameters.highFrequencyContainer.choice.basicVehicleContainerHighFrequency.heading.headingValue;//0.1 degree
-			msg.high_frequency_container.speed.value = cam->asn1()->cam.camParameters.highFrequencyContainer.choice.basicVehicleContainerHighFrequency.speed.speedValue;//0.01 m/s
-			msg.high_frequency_container.drive_direction.value = cam->asn1()->cam.camParameters.highFrequencyContainer.choice.basicVehicleContainerHighFrequency.driveDirection;
-			msg.high_frequency_container.vehicle_length.value = 0.49*10;
-			msg.high_frequency_container.vehicle_width.value = 0.18*10;
-			msg.high_frequency_container.longitudinal_acceleration.value = cam->asn1()->cam.camParameters.highFrequencyContainer.choice.basicVehicleContainerHighFrequency.longitudinalAcceleration.longitudinalAccelerationValue*10;
-			msg.high_frequency_container.curvature.value = cam->asn1()->cam.camParameters.highFrequencyContainer.choice.basicVehicleContainerHighFrequency.curvature.curvatureValue;
-			msg.high_frequency_container.yaw_rate.value = cam->asn1()->cam.camParameters.highFrequencyContainer.choice.basicVehicleContainerHighFrequency.yawRate.yawRateValue;//0.01degree/s
+		msg.high_frequency_container.heading.value = cam->asn1()->cam.camParameters.highFrequencyContainer.choice.basicVehicleContainerHighFrequency.heading.headingValue;//0.1 degree
+		msg.high_frequency_container.speed.value = cam->asn1()->cam.camParameters.highFrequencyContainer.choice.basicVehicleContainerHighFrequency.speed.speedValue;//0.01 m/s
+		msg.high_frequency_container.drive_direction.value = cam->asn1()->cam.camParameters.highFrequencyContainer.choice.basicVehicleContainerHighFrequency.driveDirection;
+		msg.high_frequency_container.vehicle_length.value = 0.49*10;
+		msg.high_frequency_container.vehicle_width.value = 0.18*10;
+		msg.high_frequency_container.longitudinal_acceleration.value = cam->asn1()->cam.camParameters.highFrequencyContainer.choice.basicVehicleContainerHighFrequency.longitudinalAcceleration.longitudinalAccelerationValue*10;
+		msg.high_frequency_container.curvature.value = cam->asn1()->cam.camParameters.highFrequencyContainer.choice.basicVehicleContainerHighFrequency.curvature.curvatureValue;
+		msg.high_frequency_container.yaw_rate.value = cam->asn1()->cam.camParameters.highFrequencyContainer.choice.basicVehicleContainerHighFrequency.yawRate.yawRateValue;//0.01degree/s
 
-			publisher->publish(msg);
-		}
+		publisher->publish(msg);
 	}
 }
 
