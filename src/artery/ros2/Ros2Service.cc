@@ -150,9 +150,9 @@ void Ros2Service::receiveSignal(cComponent* source, simsignal_t signal, cObject*
 
 		msg.station_type.value = msg.station_type.PASSENGER_CAR;
 
-		msg.reference_position.longitude = std::round(rosCoord.x); //0.1m
-		msg.reference_position.latitude = std::round(-rosCoord.y); //0.1m //flip y-axis
-		msg.reference_position.altitude.value = 0; //cam->asn1()->cam.camParameters.basicContainer.referencePosition.altitude.altitudeValue; //0.01m
+		msg.reference_position.longitude = std::round(rosCoord.x)*10; //0.1m
+		msg.reference_position.latitude = std::round(-rosCoord.y)*10; //0.1m //flip y-axis
+		msg.reference_position.altitude.value = std::round(rosCoord.z)*10;; //0.01m
 
 		msg.high_frequency_container.heading.value = cam->asn1()->cam.camParameters.highFrequencyContainer.choice.basicVehicleContainerHighFrequency.heading.headingValue;//0.1 degree
 		msg.high_frequency_container.speed.value = cam->asn1()->cam.camParameters.highFrequencyContainer.choice.basicVehicleContainerHighFrequency.speed.speedValue;//0.01 m/s

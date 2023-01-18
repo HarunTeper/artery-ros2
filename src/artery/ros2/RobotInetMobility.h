@@ -47,6 +47,8 @@ public:
 
     const ros2::RobotObject& getLastRobotObject() const { return mLastRobotObject; }
     const ros2::RobotObject& getLastSimulationRobotObject() const { return mLastSimulationRobotObject; }
+    Position getSimulationPosition() const;
+    GeoPosition getSimulationGeoPosition() const;
     Position getPosition() const;
     GeoPosition getGeoPosition() const;
     double getSpeed() const;

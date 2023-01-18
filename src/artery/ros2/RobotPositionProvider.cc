@@ -14,6 +14,7 @@ using namespace omnetpp;
 namespace {
     const simsignal_t positionFixSignal = cComponent::registerSignal("PositionFix");
     const simsignal_t robotPositionChangedSignal = cComponent::registerSignal("robotPositionChanged");
+    const simsignal_t simulationPositionChangedSignal = cComponent::registerSignal("simulationPositionChanged");
 } // namespace
 
 
@@ -40,7 +41,7 @@ int RobotPositionProvider::numInitStages() const
 
 void RobotPositionProvider::receiveSignal(cComponent*, simsignal_t signal, cObject*, cObject*)
 {
-    if (signal == robotPositionChangedSignal) {
+    if (signal == simulationPositionChangedSignal) {
         updatePositionFix();
     }
 }
@@ -50,7 +51,7 @@ void RobotPositionProvider::updatePositionFix()
     using namespace vanetza::units;
     static const TrueNorth north;
 
-    auto geopos = mMobility->getGeoPosition();
+    auto geopos = mMobility->getSimulationGeoPosition();
     mPositionFix.timestamp = mRuntime->now();
     mPositionFix.latitude = geopos.latitude;
     mPositionFix.longitude = geopos.longitude;
@@ -70,12 +71,12 @@ void RobotPositionProvider::updatePositionFix()
 
 Position RobotPositionProvider::getCartesianPosition() const
 {
-    return mMobility->getPosition();
+    return mMobility->getSimulationPosition();
 }
 
 GeoPosition RobotPositionProvider::getGeodeticPosition() const
 {
-    return mMobility->getGeoPosition();
+    return mMobility->getSimulationGeoPosition();
 }
 
 } // namespace artery

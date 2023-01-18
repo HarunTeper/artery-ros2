@@ -8,6 +8,7 @@ simple RobotInetMobility like IMobility
         @signal[mobilityStateChanged];
         @signal[robotPositionChanged](type=ros2::RobotObject);
         @signal[localizationPositionChanged](type=ros2::RobotObject);
+        @signal[simulationPositionChanged](type=ros2::RobotObject);
         string visualRepresentation = default("");
         string coordinateSystemModule = default("coordinateSystem");
 }

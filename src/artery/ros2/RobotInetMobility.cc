@@ -21,6 +21,7 @@ namespace
 
 using namespace omnetpp;
 const simsignal_t robotPositionChangedSignal = cComponent::registerSignal("robotPositionChanged");
+const simsignal_t simulationPositionChangedSignal = cComponent::registerSignal("simulationPositionChanged");
 
 } // namespace
 
@@ -63,7 +64,8 @@ void RobotInetMobility::localization_callback(const etsi_its_msgs::msg::CAM::Sha
     ros2::RobotObject robot;
     robot.setId(mLastRobotObject.getId());
     robot.setType("PASSENGER_CAR");
-    robot.setPosition({msg->reference_position.longitude, msg->reference_position.latitude, 0.0 });
+    // flix y-axis (positive is up in Ros vs. negative is up in OMNeT++/INET)
+    robot.setPosition({msg->reference_position.longitude/10, -(msg->reference_position.latitude/10), msg->reference_position.altitude.value/100 });
     // Scale back the received heading value to [0,360]
     robot.setHeading((double)msg->high_frequency_container.heading.value/10);
     // Scale back the received speed value to m/s
@@ -79,7 +81,6 @@ void RobotInetMobility::localization_callback(const etsi_its_msgs::msg::CAM::Sha
 
     mLastRobotObject = robot;
     std::tie(mPosition.x, mPosition.y, mPosition.z) = robot.getPosition();
-    mPosition.y *= -1.0; // flix y-axis (positive is up in Ros vs. negative is up in OMNeT++/INET)
 
     emit(robotPositionChangedSignal, &robot);
 }
@@ -89,7 +90,8 @@ void RobotInetMobility::simulation_callback(const auna_its_msgs::msg::CAM::Share
     ros2::RobotObject robot;
     robot.setId(mLastRobotObject.getId());
     robot.setType("PASSENGER_CAR");
-    robot.setPosition({msg->x, msg->y, 0.0 });
+    // flix y-axis (positive is up in Ros vs. negative is up in OMNeT++/INET)
+    robot.setPosition({msg->x, -msg->y, msg->z });
     robot.setHeading((double)msg->theta);
     robot.setSpeed((double)msg->v);
     robot.setDriveDirection(msg->drive_direction);
@@ -141,12 +143,14 @@ void RobotInetMobility::initialize(const ros2::RobotObject& robot)
 {
     setInetProperties(robot);
     mLastRobotObject = robot;
+    mLastSimulationRobotObject = robot;
 }
 
 void RobotInetMobility::update(const ros2::RobotObject& robot)
 {
     setInetProperties(robot);
     emit(inet::IMobility::mobilityStateChangedSignal, this);
+    emit(simulationPositionChangedSignal, &robot);
     updateVisualRepresentation();
     mLastSimulationRobotObject = robot;
 }
@@ -159,7 +163,6 @@ void RobotInetMobility::setInetProperties(const ros2::RobotObject& robot)
     mYawRate.alpha = robot.getYawRate();
     mSpeed = direction * pow(-1,robot.getDriveDirection()) * robot.getSpeed();
     std::tie(mSimulationPosition.x, mSimulationPosition.y, mSimulationPosition.z) = robot.getPosition();
-    mSimulationPosition.y *= -1.0; // flix y-axis (positive is up in Ros vs. negative is up in OMNeT++/INET)
 }
 
 void RobotInetMobility::updateVisualRepresentation()
@@ -193,6 +196,22 @@ GeoPosition RobotInetMobility::getGeoPosition() const
     GeoPosition pos;
     pos.latitude = inet.latitude * boost::units::degree::degree;
     pos.longitude = inet.longitude * boost::units::degree::degree;
+
+    return pos;
+}
+
+Position RobotInetMobility::getSimulationPosition() const
+{
+    return Position {mSimulationPosition.x, mSimulationPosition.y};
+}
+
+GeoPosition RobotInetMobility::getSimulationGeoPosition() const
+{
+    inet::GeoCoord inet = mCoordinateSystem->computeGeographicCoordinate(mSimulationPosition);
+    GeoPosition pos;
+    pos.latitude = inet.latitude * boost::units::degree::degree;
+    pos.longitude = inet.longitude * boost::units::degree::degree;
+
     return pos;
 }
 
